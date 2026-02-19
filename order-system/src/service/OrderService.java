@@ -1,11 +1,15 @@
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+package service;
+
+import domain.Order;
+import exception.DuplicateOrderException;
+import exception.OrderNotFoundException;
+
+import java.util.*;
 
 public class OrderService {
 
     private final Map<String, Order> orderMap = new HashMap<>();
+    private final Set<Order> orderSet = new HashSet<>();
     private final Map<String, List<Order>> ordersByCustomer = new HashMap<>();
 
     public void addOrder(Order order) {
@@ -15,6 +19,7 @@ public class OrderService {
         }
         List<Order> orders = ordersByCustomer.computeIfAbsent(order.getCustomerId(), k -> new ArrayList<>());
         orders.add(order);
+        orderSet.add(order);
     }
 
     public Order getOrder(String orderId) {
@@ -27,7 +32,10 @@ public class OrderService {
 
     public long getTotalAmountByCustomer(String customerId) {
         long amount = 0;
-        List<Order> orders = ordersByCustomer.getOrDefault(customerId, new ArrayList<>());
+        List<Order> orders = ordersByCustomer.get(customerId);
+        if (orders == null) {
+            return amount;
+        }
         for (Order order : orders) {
             amount += order.getAmount();
         }
@@ -38,7 +46,28 @@ public class OrderService {
         return new ArrayList<>(orderMap.values());
     }
 
+    public boolean containsOrder(Order order) {
+        return orderSet.contains(order);
+    }
+
     public List<Order> getOrdersByCustomer(String customerId) {
         return new ArrayList<>(ordersByCustomer.getOrDefault(customerId, List.of()));
     }
+
+    public List<Order> getOrdersSorted(Comparator<Order> c) {
+        ArrayList<Order> orders = new ArrayList<>(orderMap.values());
+        if (c == null) {
+            Collections.sort(orders);
+        } else {
+            orders.sort(c);
+        }
+        return orders;
+    }
+
+    public void clear() {
+        this.orderMap.clear();
+        this.orderSet.clear();
+        this.ordersByCustomer.clear();
+    }
+
 }

@@ -1,6 +1,8 @@
+package domain;
+
 import java.util.Objects;
 
-public final class Order {
+public final class Order implements Comparable<Order> {
     private final String orderId;
     private final String customerId;
     private final long amount;
@@ -10,6 +12,8 @@ public final class Order {
             throw new IllegalArgumentException("orderId");
         } else if (customerId == null || customerId.isBlank()) {
             throw new IllegalArgumentException("customerId");
+        } else if (amount < 1L) {
+            throw new IllegalArgumentException("amount");
         }
         this.orderId = orderId;
         this.customerId = customerId;
@@ -29,16 +33,16 @@ public final class Order {
     }
 
     @Override
-    public boolean equals(Object o) {
-        if (o == null) {
+    public int compareTo(Order other) {
+        return this.getOrderId().compareTo(other.getOrderId());
+    }
+
+    @Override
+    public boolean equals(Object obj) {
+        if (!(obj instanceof Order)) {
             return false;
-        } else if (o == this) {
-            return true;
         }
-        if (this.getClass() != o.getClass()) {
-            return false;
-        }
-        Order order = (Order) o;
+        Order order = (Order) obj;
         return this.getOrderId().equals(order.getOrderId());
     }
 

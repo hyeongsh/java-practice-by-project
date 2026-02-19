@@ -1,3 +1,5 @@
+# 문제
+
 A. 언어/객체 기본 (6문항)
 1.	Java는 call by value라고 하는데, 그 말이 “참조 타입”에서 실제로 무슨 의미인지 설명해줘.
 2.	String이 immutable인 이유 2가지를 말해줘(실무적 이유 포함).
@@ -61,11 +63,13 @@ E. 동시성/스레드 (5문항)
 ⸻
 
 F. 미니 코딩 (2문항)
-29.	List<Order>에서 customerId별로 합계를 구해 Map<String, Long>으로 만들기(스트림/반복문 아무거나).
+29.	List<domain.Order>에서 customerId별로 합계를 구해 Map<String, Long>으로 만들기(스트림/반복문 아무거나).
 
-- Order: String customerId; long amount;
+- domain.Order: String customerId; long amount;
 
 30.	HashMap 키로 쓸 User(id, name) 클래스를 안전하게 설계해봐(필드/생성자/equals-hashCode만).
+
+# 답
 
 1. call by value는 값을 복사해서 가져오는 방식이야. 이 경우 복사된 값은 변경해도 기존 값에 영향을 주지 못해.
 2. 모르겠네.. String이 스택이나 힙에 저장되지 않고 데이터 영역에 저장되나?

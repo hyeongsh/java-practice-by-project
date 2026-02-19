@@ -1,7 +1,7 @@
 # 문제 개선
 ## 문제 1: equals 오버라이드 실수
 ### 문제
-equals(Order object)로 구현하여 사용하였음
+equals(domain.Order object)로 구현하여 사용하였음
 ### 원인
 Object.equals(Object)를 정확히 오버라이드 해야만 사용 가능
 모든 객체는 Object 클래스를 상속받으므로..
