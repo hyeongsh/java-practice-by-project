@@ -1,6 +1,6 @@
 import java.util.Objects;
 
-public class Order {
+public final class Order {
     private final String orderId;
     private final String customerId;
     private final long amount;

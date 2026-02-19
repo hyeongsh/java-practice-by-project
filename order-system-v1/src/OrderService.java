@@ -24,8 +24,7 @@ public class OrderService {
 
     public long getTotalAmountByCustomer(String customerId) {
         long amount = 0;
-        for (Map.Entry<String, Order> entry : orderMap.entrySet()) {
-            Order order = entry.getValue();
+        for (Order order : orderMap.values()) {
             if (order.getCustomerId().equals(customerId)) {
                 amount += order.getAmount();
             }
