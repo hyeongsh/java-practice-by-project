@@ -6,7 +6,11 @@ public final class Order {
     private final long amount;
 
     public Order(String orderId, String customerId, long amount) {
-        if (orderId == null || orderId.isBlank()) throw new IllegalArgumentException("orderId");
+        if (orderId == null || orderId.isBlank()) {
+            throw new IllegalArgumentException("orderId");
+        } else if (customerId == null || customerId.isBlank()) {
+            throw new IllegalArgumentException("customerId");
+        }
         this.orderId = orderId;
         this.customerId = customerId;
         this.amount = amount;

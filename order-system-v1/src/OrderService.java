@@ -6,12 +6,15 @@ import java.util.Map;
 public class OrderService {
 
     private final Map<String, Order> orderMap = new HashMap<>();
+    private final Map<String, List<Order>> ordersByCustomer = new HashMap<>();
 
     public void addOrder(Order order) {
         Order prev = orderMap.putIfAbsent(order.getOrderId(), order);
         if (prev != null) {
             throw new DuplicateOrderException("id가 이미 존재합니다.");
         }
+        List<Order> orders = ordersByCustomer.computeIfAbsent(order.getCustomerId(), k -> new ArrayList<>());
+        orders.add(order);
     }
 
     public Order getOrder(String orderId) {
@@ -24,15 +27,18 @@ public class OrderService {
 
     public long getTotalAmountByCustomer(String customerId) {
         long amount = 0;
-        for (Order order : orderMap.values()) {
-            if (order.getCustomerId().equals(customerId)) {
-                amount += order.getAmount();
-            }
+        List<Order> orders = ordersByCustomer.getOrDefault(customerId, new ArrayList<>());
+        for (Order order : orders) {
+            amount += order.getAmount();
         }
         return amount;
     }
 
     public List<Order> getAllOrders() {
         return new ArrayList<>(orderMap.values());
+    }
+
+    public List<Order> getOrdersByCustomer(String customerId) {
+        return new ArrayList<>(ordersByCustomer.getOrDefault(customerId, List.of()));
     }
 }
