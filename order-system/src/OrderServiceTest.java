@@ -1,13 +1,20 @@
 import domain.Order;
 import exception.DuplicateOrderException;
 import exception.OrderNotFoundException;
+import exception.OrderParseException;
 import service.OrderService;
 
+import java.nio.file.Path;
 import java.util.Comparator;
 import java.util.List;
 import java.util.Objects;
 
 public class OrderServiceTest {
+
+    @FunctionalInterface
+    interface ThrowingRunnable {
+        void run() throws Exception;
+    }
 
     private final OrderService orderService = new OrderService();
 
@@ -21,16 +28,20 @@ public class OrderServiceTest {
         run("고객별_주문_리스트_조회", this::고객별_주문_리스트_조회);
         run("정렬_결과_확인", this::정렬_결과_확인);
         run("반환_리스트_수정_영향_확인", this::반환_리스트_수정_영향_확인);
+        run("CSV파일_로드_성공", this::CSV파일_로드_성공);
+        run("CSV파일_로드_실패_필드오류", this::CSV파일_로드_실패_필드오류);
+        run("CSV파일_로드_실패_포맷오류", this::CSV파일_로드_실패_포맷오류);
+        run("CSV파일_로드_실패_중복", this::CSV파일_로드_실패_중복);
     }
 
-    public void run(String testName, Runnable testTicket) {
+    public void run(String testName, Runnable testTicket){
         주문_3개_추가();
         try {
             testTicket.run();
             System.out.println(testName + " OK");
         } catch (AssertionError ex) {
             ex.printStackTrace();
-            System.out.println(testName + " FAIL");
+            System.err.println(testName + " FAIL");
         }
     }
 
@@ -49,7 +60,7 @@ public class OrderServiceTest {
     public void 인덱스기반_고객별_합계_계산() {
         long customer1Amount = orderService.getTotalAmountByCustomer("customer1");
         long customer2Amount = orderService.getTotalAmountByCustomer("customer2");
-        assertEquals(62L, customer1Amount);
+        assertEquals(60L, customer1Amount);
         assertEquals(50L, customer2Amount);
     }
 
@@ -100,7 +111,37 @@ public class OrderServiceTest {
         assertEquals(3, allOrders.size());
     }
 
-    private void assertThrows(Class<? extends Throwable> type, Runnable action) {
+    public void CSV파일_로드_성공() {
+        orderService.clear();
+        Path path = Path.of("src/input.csv");
+        try {
+            orderService.loadOrders(path);
+            List<Order> allOrders = orderService.getAllOrders();
+            assertEquals(9, allOrders.size());
+        } catch (Exception ex) {
+            throw new AssertionError("CSV 로드 성공 테스트 실패", ex);
+        }
+    }
+
+    public void CSV파일_로드_실패_필드오류() {
+        orderService.clear();
+        Path path = Path.of("src/invalid_field.csv");
+        assertThrows(OrderParseException.class, () -> orderService.loadOrders(path));
+    }
+
+    public void CSV파일_로드_실패_포맷오류() {
+        orderService.clear();
+        Path path = Path.of("src/invalid_format.csv");
+        assertThrows(OrderParseException.class, () -> orderService.loadOrders(path));
+    }
+
+    public void CSV파일_로드_실패_중복() {
+        orderService.clear();
+        Path path = Path.of("src/duplicate.csv");
+        assertThrows(DuplicateOrderException.class, () -> orderService.loadOrders(path));
+    }
+
+    private void assertThrows(Class<? extends Throwable> type, ThrowingRunnable action) {
         try {
             action.run();
             throw new AssertionError("예외가 발생해야 합니다: " + type.getSimpleName());

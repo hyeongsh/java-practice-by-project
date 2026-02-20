@@ -1,5 +1,7 @@
 package domain;
 
+import exception.ErrorMessages;
+
 import java.util.Objects;
 
 public final class User {
@@ -9,9 +11,9 @@ public final class User {
 
     public User(String id, String name) {
         if (id == null || id.isBlank()) {
-            throw new IllegalArgumentException("id");
+            throw new IllegalArgumentException(String.format(ErrorMessages.INVALID_INPUT, "id"));
         } else if (name == null || name.isBlank()) {
-            throw new IllegalArgumentException("name");
+            throw new IllegalArgumentException(String.format(ErrorMessages.INVALID_INPUT, "name"));
         }
         this.id = id;
         this.name = name;

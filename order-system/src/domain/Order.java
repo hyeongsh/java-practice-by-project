@@ -1,5 +1,7 @@
 package domain;
 
+import exception.ErrorMessages;
+
 import java.util.Objects;
 
 public final class Order implements Comparable<Order> {
@@ -9,11 +11,11 @@ public final class Order implements Comparable<Order> {
 
     public Order(String orderId, String customerId, long amount) {
         if (orderId == null || orderId.isBlank()) {
-            throw new IllegalArgumentException("orderId");
+            throw new IllegalArgumentException(String.format(ErrorMessages.INVALID_INPUT, "orderId"));
         } else if (customerId == null || customerId.isBlank()) {
-            throw new IllegalArgumentException("customerId");
+            throw new IllegalArgumentException(String.format(ErrorMessages.INVALID_INPUT, "customerId"));
         } else if (amount < 1L) {
-            throw new IllegalArgumentException("amount");
+            throw new IllegalArgumentException(String.format(ErrorMessages.INVALID_INPUT, "amount"));
         }
         this.orderId = orderId;
         this.customerId = customerId;
