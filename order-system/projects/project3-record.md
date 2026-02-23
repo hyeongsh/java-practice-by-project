@@ -1,5 +1,5 @@
 # 문제 개선
-## 문제 1: checked exception 메서드의 테스트
+## 문제 1: checked main.java.exception 메서드의 테스트
 ### 문제
 - unchecked exception의 경우 반드시 처리할 필요가 없었으므로 기존 구현 방식에 throw를 던지는 방식을 추가하는 것 만으로도 처리가 가능했음
 - 하지만 checked exception을 추가하니 throws로 받거나, try-catch문을 반드시 사용해야 해서 기존 코드가 변경되어야 하는 문제가 발생하였음.
@@ -11,7 +11,7 @@
 
 ## 문제 2: exception의 처리 방식
 ### 문제
-- exception 을 처리하는 단계에서 IOException, OrderParseException, DuplicateOrderException 등 다양한 예외가 하나의 메서드에서 발생
+- main.java.exception 을 처리하는 단계에서 IOException, OrderParseException, DuplicateOrderException 등 다양한 예외가 하나의 메서드에서 발생
 - 이를 전체로 묶어서 throws Exception을 할 경우 상위 메서드에선 해당 예외가 정확히 어떤 예외인지 확인하는 절차를 한번 더 거쳐야했음
 ### 원인 x
 ### 개선

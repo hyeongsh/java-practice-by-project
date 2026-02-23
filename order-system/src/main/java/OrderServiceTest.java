@@ -113,7 +113,7 @@ public class OrderServiceTest {
 
     public void CSV파일_로드_성공() {
         orderService.clear();
-        Path path = Path.of("src/input.csv");
+        Path path = Path.of("src/main/java/csv/input.csv");
         try {
             orderService.loadOrders(path);
             List<Order> allOrders = orderService.getAllOrders();
@@ -125,19 +125,19 @@ public class OrderServiceTest {
 
     public void CSV파일_로드_실패_필드오류() {
         orderService.clear();
-        Path path = Path.of("src/invalid_field.csv");
+        Path path = Path.of("src/main/java/csv/invalid_field.csv");
         assertThrows(OrderParseException.class, () -> orderService.loadOrders(path));
     }
 
     public void CSV파일_로드_실패_포맷오류() {
         orderService.clear();
-        Path path = Path.of("src/invalid_format.csv");
+        Path path = Path.of("src/main/java/csv/invalid_format.csv");
         assertThrows(OrderParseException.class, () -> orderService.loadOrders(path));
     }
 
     public void CSV파일_로드_실패_중복() {
         orderService.clear();
-        Path path = Path.of("src/duplicate.csv");
+        Path path = Path.of("src/main/java/csv/duplicate.csv");
         assertThrows(DuplicateOrderException.class, () -> orderService.loadOrders(path));
     }
 

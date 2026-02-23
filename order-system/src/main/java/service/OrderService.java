@@ -17,6 +17,8 @@ public class OrderService {
     private final Map<String, Order> orderMap = new HashMap<>();
     private final Set<Order> orderSet = new HashSet<>();
     private final Map<String, List<Order>> ordersByCustomer = new HashMap<>();
+    private final Object orderLock = new Object();
+    private volatile boolean shutdownRequested = false;
 
     public void loadOrders(Path path) throws OrderParseException, IOException {
         try (BufferedReader br = Files.newBufferedReader(path)) {
@@ -45,72 +47,100 @@ public class OrderService {
         if (order == null) {
             throw new IllegalArgumentException(String.format(ErrorMessages.INVALID_PARAMETER, "order"));
         }
-        Order prev = orderMap.putIfAbsent(order.getOrderId(), order);
-        if (prev != null) {
-            throw new DuplicateOrderException(String.format(ErrorMessages.DUPLICATE_ORDER, prev.getOrderId()));
+        synchronized (orderLock) {
+            Order prev = orderMap.putIfAbsent(order.getOrderId(), order);
+            if (prev != null) {
+                throw new DuplicateOrderException(String.format(ErrorMessages.DUPLICATE_ORDER, prev.getOrderId()));
+            }
+            List<Order> orders = ordersByCustomer.computeIfAbsent(order.getCustomerId(), k -> new ArrayList<>());
+            orders.add(order);
+            orderSet.add(order);
         }
-        List<Order> orders = ordersByCustomer.computeIfAbsent(order.getCustomerId(), k -> new ArrayList<>());
-        orders.add(order);
-        orderSet.add(order);
     }
 
     public Order getOrder(String orderId) {
         if (orderId == null || orderId.isBlank()) {
             throw new IllegalArgumentException(String.format(ErrorMessages.INVALID_PARAMETER, "orderId"));
         }
-        Order order = this.orderMap.get(orderId);
-        if (order == null) {
-            throw new OrderNotFoundException(String.format(ErrorMessages.ORDER_NOT_FOUND, orderId));
+        synchronized (orderLock) {
+            Order order = this.orderMap.get(orderId);
+            if (order == null) {
+                throw new OrderNotFoundException(String.format(ErrorMessages.ORDER_NOT_FOUND, orderId));
+            }
+            return order;
         }
-        return order;
     }
 
     public long getTotalAmountByCustomer(String customerId) {
         if (customerId == null || customerId.isBlank()) {
             throw new IllegalArgumentException(String.format(ErrorMessages.INVALID_PARAMETER, "customerId"));
         }
-        long amount = 0;
-        List<Order> orders = ordersByCustomer.get(customerId);
-        if (orders == null) {
+        synchronized (orderLock) {
+            long amount = 0;
+            List<Order> orders = ordersByCustomer.get(customerId);
+            if (orders == null) {
+                return amount;
+            }
+            for (Order order : orders) {
+                amount += order.getAmount();
+            }
             return amount;
         }
-        for (Order order : orders) {
-            amount += order.getAmount();
-        }
-        return amount;
     }
 
     public List<Order> getAllOrders() {
-        return new ArrayList<>(orderMap.values());
+        synchronized (orderLock) {
+            return new ArrayList<>(orderMap.values());
+        }
     }
 
     public boolean containsOrder(Order order) {
         if (order == null) {
             throw new IllegalArgumentException(String.format(ErrorMessages.INVALID_PARAMETER, "order"));
         }
-        return orderSet.contains(order);
+        synchronized (orderLock) {
+            return orderSet.contains(order);
+        }
     }
 
     public List<Order> getOrdersByCustomer(String customerId) {
         if (customerId == null || customerId.isBlank()) {
             throw new IllegalArgumentException(String.format(ErrorMessages.INVALID_PARAMETER, "customerId"));
         }
-        return new ArrayList<>(ordersByCustomer.getOrDefault(customerId, List.of()));
+        synchronized (orderLock) {
+            return new ArrayList<>(ordersByCustomer.getOrDefault(customerId, List.of()));
+        }
     }
 
     public List<Order> getOrdersSorted(Comparator<Order> c) {
-        ArrayList<Order> orders = new ArrayList<>(orderMap.values());
-        if (c == null) {
-            Collections.sort(orders);
-        } else {
-            orders.sort(c);
+        synchronized (orderLock) {
+            ArrayList<Order> orders = new ArrayList<>(orderMap.values());
+            if (c == null) {
+                Collections.sort(orders);
+            } else {
+                orders.sort(c);
+            }
+            return orders;
         }
-        return orders;
     }
 
     public void clear() {
-        this.orderMap.clear();
-        this.orderSet.clear();
-        this.ordersByCustomer.clear();
+        synchronized (orderLock) {
+            this.orderMap.clear();
+            this.orderSet.clear();
+            this.ordersByCustomer.clear();
+        }
+    }
+
+    public void requestShutdown() {
+        shutdownRequested = true;
+    }
+
+    public void resetShutdownRequested() {
+        shutdownRequested = false;
+    }
+
+    public boolean isShutdownRequested() {
+        return shutdownRequested;
     }
 }

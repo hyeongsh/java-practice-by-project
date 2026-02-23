@@ -63,9 +63,9 @@ E. 동시성/스레드 (5문항)
 ⸻
 
 F. 미니 코딩 (2문항)
-29.	List<domain.Order>에서 customerId별로 합계를 구해 Map<String, Long>으로 만들기(스트림/반복문 아무거나).
+29.	List<main.java.domain.Order>에서 customerId별로 합계를 구해 Map<String, Long>으로 만들기(스트림/반복문 아무거나).
 
-- domain.Order: String customerId; long amount;
+- main.java.domain.Order: String customerId; long amount;
 
 30.	HashMap 키로 쓸 User(id, name) 클래스를 안전하게 설계해봐(필드/생성자/equals-hashCode만).
 

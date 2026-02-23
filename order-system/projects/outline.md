@@ -9,7 +9,7 @@
 - 미니 코딩: 그룹 합계, 안전한 키 객체 구현
 
 ## Project 1: 객체/동등성/컬렉션 기본
-- domain.Order/User 불변 설계
+- main.java.domain.Order/User 불변 설계
 - equals/hashCode 직접 구현
 - HashMap/HashSet 동작 이해
 - getTotalAmountByCustomer 구현
